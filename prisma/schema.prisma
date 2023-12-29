@@ -1,0 +1,206 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id           String        @id @default(uuid())
+    name         String
+    email        String        @unique
+    cpf          String        @unique
+    phone        String
+    birthDate    DateTime
+    photo        String?       @default("")
+    password     String
+    isActive     Boolean?      @default(true)
+    address      Address?
+    appointments Appointment[]
+    payments     Payment[]
+}
+
+model Address {
+    id           String @id @default(uuid())
+    street       String
+    number       String
+    complement   String
+    neighborhood String
+    city         String
+    state        String
+    country      String
+    zipcode      String
+    userId       String @unique
+    user         User   @relation(fields: [userId], references: [id])
+}
+
+// model Schedule {
+//     id           String        @id @default(uuid())
+//     date         DateTime      @unique
+//     hours        DateTime[]    
+//     adminId      String
+//     admin        Admin         @relation(fields: [adminId], references: [id])
+//     appointments Appointment[]
+// }
+
+model Admin {
+    id        String     @id @default(uuid())
+    name      String
+    email     String     @unique
+    password  String
+    isActive  Boolean?   @default(true)
+    schedules Schedule[]
+}
+
+model Hour {
+    id           String        @id @default(uuid())
+    time         DateTime
+    scheduleId   String
+    schedule     Schedule      @relation(fields: [scheduleId], references: [id])
+    appointments Appointment[]
+}
+
+model Schedule {
+    id           String        @id @default(uuid())
+    date         DateTime      @unique
+    hours        Hour[]
+    adminId      String
+    admin        Admin         @relation(fields: [adminId], references: [id])
+    appointments Appointment[]
+}
+
+model Appointment {
+    id         String    @id @default(uuid())
+    userId     String
+    hourId     String
+    scheduleId String
+    createdAt  String
+    updatedAt  String
+    deletedAt  String?
+    user       User      @relation(fields: [userId], references: [id])
+    hour       Hour      @relation(fields: [hourId], references: [id])
+    schedule   Schedule  @relation(fields: [scheduleId], references: [id])
+    payment    Payment[]
+}
+
+model Category {
+    id        String    @id @default(uuid())
+    name      String
+    isActive  Boolean?  @default(true)
+    createdAt String
+    updatedAt String
+    deletedAt String?
+    services  Service[]
+}
+
+model Service {
+    id         String   @id @default(uuid())
+    name       String
+    price      Float
+    duration   String
+    isActive   Boolean? @default(true)
+    createdAt  String
+    updatedAt  String
+    deletedAt  String?
+    categoryId String
+    category   Category @relation(fields: [categoryId], references: [id])
+}
+
+model Payment {
+    id            String      @id @default(uuid())
+    name          String
+    isActive      Boolean?    @default(true)
+    createdAt     String
+    updatedAt     String
+    deletedAt     String?
+    userId        String
+    user          User        @relation(fields: [userId], references: [id])
+    appointmentId String
+    appointment   Appointment @relation(fields: [appointmentId], references: [id])
+}
+
+model Barber {
+    id        String    @id @default(uuid())
+    name      String
+    email     String    @unique
+    password  String
+    isActive  Boolean?  @default(true)
+    createdAt String
+    updatedAt String
+    deletedAt String?
+    haircuts  Haircut[]
+}
+
+model Haircut {
+    id          String            @id @default(uuid())
+    name        String
+    description String
+    price       Float
+    barberId    String
+    barber      Barber            @relation(fields: [barberId], references: [id])
+    isActive    Boolean?          @default(true)
+    createdAt   String
+    updatedAt   String
+    deletedAt   String?
+    featured    FeaturedHaircut[]
+}
+
+model FeaturedHaircut {
+    id        String  @id @default(uuid())
+    haircutId String
+    haircut   Haircut @relation(fields: [haircutId], references: [id])
+    createdAt String
+    updatedAt String
+    deletedAt String?
+}
+
+model Notification {
+    id        String  @id @default(uuid())
+    title     String
+    content   String
+    createdAt String
+    updatedAt String
+    deletedAt String?
+}
+
+model Testimonial {
+    id        String  @id @default(uuid())
+    name      String
+    content   String
+    createdAt String
+    updatedAt String
+    deletedAt String?
+}
+
+model Product {
+    id        String         @id @default(uuid())
+    name      String
+    price     Float
+    createdAt String
+    updatedAt String
+    deletedAt String?
+    orders    ProductOrder[]
+}
+
+model Order {
+    id        String         @id @default(uuid())
+    total     Float
+    createdAt String
+    updatedAt String
+    deletedAt String?
+    products  ProductOrder[]
+}
+
+model ProductOrder {
+    id        String  @id @default(uuid())
+    quantity  Int
+    createdAt String
+    updatedAt String
+    deletedAt String?
+    productId String
+    product   Product @relation(fields: [productId], references: [id])
+    orderId   String
+    order     Order   @relation(fields: [orderId], references: [id])
+}
