@@ -124,7 +124,6 @@ export class FirebaseMessagesRepository implements MessageRepository {
       messageData.content = this.decrypt(messageData.content);
       return [messageData];
     } catch (error) {
-      console.error('Erro:', error);
       throw new BadRequestException('Erro ao buscar mensagem');
     }
   }
